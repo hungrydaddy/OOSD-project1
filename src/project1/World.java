@@ -1,135 +1,117 @@
 package project1;
 
-//import com.sun.java.util.jar.pack.Instruction;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
+import project1.Helper.BasicObject;
+import project1.Helper.BasicTerrain;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Map;
 
 public class World {
 
-	// tiles
-	private Image tile_floor;
-	private Image tile_stone;
-	private Image tile_target;
-	private Image tile_wall;
-	private Image tile_player_left;
-
 	// map info
-	ArrayList<String> mapInfo;
-	Integer X_offset;
-	Integer Y_offset;
+	public BasicTerrain[][] map;
+	public Integer X_offset;
+	public Integer Y_offset;
+	public Integer height;
+	public Integer width;
 
+
+	public enum Directions {
+		LEFT, RIGHT, UP, DOWN
+	}
+
+	// objects under user control
+	private BasicObject player;
 
 
 
 	public World() throws SlickException {
-		mapInfo = loadLevel(0);
-		setupTiles();
-		setupOffsets();
-
-		mapInfo.get(0);
-		mapInfo.remove(0);
+		ArrayList<String> lvlInfo = Loader.loadLevel(0);
+		setupOffsets(lvlInfo.get(0));
+		map = parseLevel(lvlInfo);
 	}
 
 
 
-	public void update(Input input, int delta) throws SlickException {
 
+	public void update(Input input, int delta) throws SlickException {
+		player.update(input, delta);
 	}
 
 
 
 	public void render(Graphics g) throws SlickException {
+		// iterate thru the map to render every object and terrain
+		for (int i = 0;i < map.length;i++) {
+			for (int j = 0;j < map[i].length;j++) {
+				if (map[i][j] != null) {
+					map[i][j].render(g);
+				}
+			}
+		}
+	}
 
-		for (int i = 0;i<mapInfo.size();i++) {
-			// seperate a line with comma
-			String[] line = mapInfo.get(i).split(",");
-			Integer x = Integer.parseInt(line[1]) * 32;
-			Integer y = Integer.parseInt(line[2]) * 32;
 
-			switch (line[0]) {
-				case "wall":
-					tile_wall.draw(X_offset + x, Y_offset + y);
-					break;
+
+
+	// calculation of offsets to centre the map
+	private void setupOffsets(String sizeInfo) throws SlickException {
+		String[] mapSize = sizeInfo.split(",");
+		width = Integer.parseInt(mapSize[0]);
+		height = Integer.parseInt(mapSize[1]);
+
+		X_offset = (App.SCREEN_WIDTH - width * App.TILE_SIZE) / 2;
+		Y_offset = (App.SCREEN_HEIGHT - height * App.TILE_SIZE) / 2;
+	}
+
+
+
+
+
+	// parsing the level info into a map
+	public BasicTerrain[][] parseLevel(ArrayList<String> lvlInfo)
+			throws SlickException {
+		BasicTerrain[][] map = new BasicTerrain[height][width];
+
+		// remove the first line - map size info
+		lvlInfo.remove(0);
+
+		// iterate to parse the map
+		for (int i = 0;i < lvlInfo.size();i++) {
+			String[] temp = lvlInfo.get(i).split(",");
+			Integer row = Integer.parseInt(temp[1]);
+			Integer column = Integer.parseInt(temp[2]);
+			Integer x = row * App.TILE_SIZE;
+			Integer y = column * App.TILE_SIZE;
+
+			// applying different rules to objects and terrains
+			switch (temp[0]) {
 				case "floor":
-					tile_floor.draw(X_offset + x, Y_offset + y);
+					map[column][row] = new BasicTerrain(BasicTerrain.TerrainType.FLOOR, row, column, this);
 					break;
-				case "stone":
-					tile_stone.draw(X_offset + x, Y_offset + y);
+				case "wall":
+					map[column][row] = new BasicTerrain(BasicTerrain.TerrainType.WALL, row, column, this);
 					break;
 				case "target":
-					tile_target.draw(X_offset + x, Y_offset + y);
+					map[column][row] = new BasicTerrain(BasicTerrain.TerrainType.TARGET, row, column, this);
+					break;
+				case "stone":
+					map[column][row].occupy(new BasicObject(BasicObject.ObjectType.STONE, this));
 					break;
 				case "player":
-					tile_player_left.draw(X_offset + x, Y_offset + y);
+					player = new BasicObject(BasicObject.ObjectType.PLAYER_LEFT, this);
+					map[column][row].occupy(player);
+					break;
+				default:
+					map[column][row] = new BasicTerrain(BasicTerrain.TerrainType.EMPTY, row, column, this);
 					break;
 			}
 		}
+
+		return map;
 	}
-
-
-
-
-
-
-
-
-
-
-	/* ------------------------------------------------------------------------------------  */
-	/* ------------------------------------------------------------------------------------  */
-	/* decomposed methods below */
-
-	private void setupTiles() throws SlickException {
-		// initialising all tile components
-		tile_floor = new Image("res/floor.png");
-		tile_stone = new Image("res/stone.png");
-		tile_target = new Image("res/target.png");
-		tile_wall = new Image("res/wall.png");
-		tile_player_left = new Image("res/player_left.png");
-	}
-
-
-	private void setupOffsets() throws SlickException {
-		String[] mapSize = mapInfo.get(0).split(",");
-
-		//TODO: Screen size calculation
-		X_offset = 20 * 32;
-		Y_offset = 10 * 32;
-		//X_offset = Integer.parseInt(mapSize[0]) * 32;
-		//Y_offset = Integer.parseInt(mapSize[1]) * 32;
-	}
-
-
-	// loading the required level
-	private ArrayList<String> loadLevel(Integer levelNumber) throws  SlickException {
-		String lvlFilePath = "res/levels/" + levelNumber + ".lvl";
-		ArrayList<String> lvlInfo = new ArrayList<String>();
-
-
-		String line = "";
-		// try reading the csv file and append it to an array for later usage
-		try (BufferedReader reader = new BufferedReader(new FileReader(lvlFilePath))) {
-			while ((line = reader.readLine()) != null) {
-				lvlInfo.add(line);
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		return lvlInfo;
-	}
-
 
 
 
