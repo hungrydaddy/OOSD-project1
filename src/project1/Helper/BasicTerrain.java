@@ -1,4 +1,10 @@
+/*
+* 100% work by Minghao Huang (Austin) StudentId: 813072 The University of Melbourne
+* */
+
+
 package project1.Helper;
+
 
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;

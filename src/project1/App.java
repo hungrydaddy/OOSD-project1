@@ -1,7 +1,8 @@
-/**
- * Project skeleton for SWEN20003: Object Oriented Software Development 2017
- * by Eleanor McMurtry
- */
+/*
+* 100% work by Minghao Huang (Austin) StudentId: 813072 The University of Melbourne
+* */
+
+
 package project1;
 
 import org.newdawn.slick.AppGameContainer;
