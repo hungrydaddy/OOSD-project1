@@ -102,7 +102,10 @@ public class World {
 					map[column][row] = new BasicTerrain(BasicTerrain.TerrainType.TARGET, row, column, this);
 					break;
 				case "stone":
-					map[column][row].occupy(new BasicObject(BasicObject.ObjectType.STONE, this));
+					// for now, a stone is just a terrain
+					map[column][row] = new BasicTerrain(BasicTerrain.TerrainType.STONE, row, column, this);
+					//change to the line below in project 2
+					//map[column][row].occupy(new BasicObject(BasicObject.ObjectType.STONE, this));
 					break;
 				case "player":
 					player = new BasicObject(BasicObject.ObjectType.PLAYER_LEFT, this);

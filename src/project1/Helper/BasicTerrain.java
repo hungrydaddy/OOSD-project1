@@ -30,7 +30,7 @@ public class BasicTerrain {
 
 
     public enum TerrainType {
-        EMPTY, FLOOR, WALL, TARGET
+        EMPTY, FLOOR, WALL, TARGET, STONE
     }
 
 
@@ -57,6 +57,11 @@ public class BasicTerrain {
                 solid = false;
                 terrianTile = new Image("res/target.png");
                 break;
+            // for now, stone does not hv physical properties, so take it as a terrain
+            case STONE:
+                solid = false;
+                terrianTile = new Image("res/stone.png");
+                break;
             case EMPTY:
                 solid = true;
                 terrianTile = null;
@@ -65,6 +70,7 @@ public class BasicTerrain {
     }
 
     public void update(Input input, int delta) {
+        // nothing for now
     }
 
 
